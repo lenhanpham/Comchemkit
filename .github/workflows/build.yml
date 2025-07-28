@@ -9,23 +9,13 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        include:
-          - os: ubuntu-latest
-            compiler: g++
-          - os: windows-latest
-            compiler: msvc
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies (Ubuntu)
-        if: runner.os == 'Linux'
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y g++ make cmake clang-tidy
@@ -38,8 +28,19 @@ jobs:
             "src/gaussian/gaussian_high_level_energy.h"
             "src/gaussian/gaussian_program.cpp"
             "src/gaussian/gaussian_program.h"
+            "src/gaussian/gaussian_extractor.cpp"
+            "src/gaussian/gaussian_extractor.h"
+            "src/gaussian/gaussian_job_checker.cpp"
+            "src/gaussian/gaussian_job_checker.h"
+            "src/gaussian/gaussian_command_executor.cpp"
             "src/core/cck_command_system.cpp"
             "src/core/cck_command_system.h"
+            "src/core/cck_config_manager.cpp"
+            "src/core/cck_config_manager.h"
+            "src/core/cck_job_scheduler.cpp"
+            "src/core/cck_job_scheduler.h"
+            "src/core/cck_qm_program.cpp"
+            "src/core/cck_qm_program.h"
             "src/main.cpp"
           )
 
@@ -55,64 +56,52 @@ jobs:
             exit 1
           fi
           echo "All required source files found."
-        shell: bash
 
       - name: Configure CMake
         run: |
           echo "Configuring CMake..."
-          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release -DWITH_GAUSSIAN=ON
-        shell: bash
+          cmake -S . -B build \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DWITH_GAUSSIAN=ON \
+            -DENABLE_EXTRA_WARNINGS=ON
 
-      - name: Static Analysis (Ubuntu)
-        if: runner.os == 'Linux'
+      - name: Static Analysis
         run: |
           echo "Running static analysis..."
           clang-tidy -p build src/main.cpp src/gaussian/*.cpp src/core/*.cpp || echo "Static analysis completed with warnings (non-blocking)"
 
-      - name: Build the project
+      - name: Build project
         run: |
           echo "Building the project..."
           cmake --build build --config Release --verbose
-        shell: bash
 
-      - name: Verify build output (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          if (!(Test-Path "build/bin/Release/cck.exe")) {
-            Write-Error "Build output not found: build/bin/Release/cck.exe"
-            exit 1
-          }
-        shell: pwsh
-
-      - name: Verify build output (Ubuntu)
-        if: runner.os == 'Linux'
+      - name: Verify build output
         run: |
           if [ ! -f "build/bin/cck" ]; then
             echo "Error: Build output not found: build/bin/cck"
             exit 1
           fi
-        shell: bash
+          echo "Build output verified successfully"
+          ls -l build/bin/cck
 
       - name: Run Tests
         run: |
           cd build
           ctest --output-on-failure -C Release
-        shell: bash
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: cck-${{ runner.os }}
-          path: |
-            build/bin/**/cck*
-            build/bin/cck*
+          name: cck-ubuntu
+          path: build/bin/cck
           if-no-files-found: error
 
       - name: Upload CMake logs on failure
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: cmake-logs-${{ runner.os }}
+          name: cmake-logs-ubuntu
           path: |
             build/CMakeFiles/CMakeOutput.log
             build/CMakeFiles/CMakeError.log
