@@ -1,0 +1,63 @@
+# Minimal CMake configuration for ComChemKit (CCK) - Testing Version
+cmake_minimum_required(VERSION 3.16)
+project(ComChemKit_Minimal
+    VERSION 0.4.0
+    DESCRIPTION "Minimal test version of Computational Chemistry Toolkit"
+    LANGUAGES CXX
+)
+
+# Set default build type if not specified
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose build type" FORCE)
+endif()
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Output directories
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# Create minimal test executable
+add_executable(cck_minimal src/main_minimal.cpp)
+
+# Compiler settings
+if(MSVC)
+    target_compile_options(cck_minimal PRIVATE
+        /W4
+        /EHsc
+        $<$<CONFIG:Release>:/O2>
+        $<$<CONFIG:Debug>:/Od /Zi>
+    )
+    target_compile_definitions(cck_minimal PRIVATE
+        _WIN32_WINNT=0x0601
+        _CRT_SECURE_NO_WARNINGS
+    )
+else()
+    target_compile_options(cck_minimal PRIVATE
+        -Wall
+        -Wextra
+        $<$<CONFIG:Release>:-O3>
+        $<$<CONFIG:Debug>:-O0 -g>
+    )
+endif()
+
+# Set output name
+set_target_properties(cck_minimal
+    PROPERTIES
+    OUTPUT_NAME "cck_minimal"
+)
+
+# Print configuration summary
+message(STATUS "")
+message(STATUS "ComChemKit Minimal Test Configuration")
+message(STATUS "=====================================")
+message(STATUS "Version:          ${PROJECT_VERSION}")
+message(STATUS "Build type:       ${CMAKE_BUILD_TYPE}")
+message(STATUS "C++ Standard:     ${CMAKE_CXX_STANDARD}")
+message(STATUS "Compiler:         ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "")
+message(STATUS "This is a minimal test version to verify basic compilation.")
+message(STATUS "The full CCK implementation requires fixing include dependencies.")
+message(STATUS "")

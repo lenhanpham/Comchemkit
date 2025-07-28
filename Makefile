@@ -1,0 +1,174 @@
+# Makefile for ComChemKit (CCK)
+# Enhanced Safety Edition v0.4.0
+
+# Directory structure
+SRC_DIR = src
+CORE_DIR = $(SRC_DIR)/core
+BUILD_DIR = build
+TEST_DIR = tests
+
+# Compiler settings
+CXX = g++
+CXXFLAGS = -std=c++20 -Wall -Wextra -O3 -pthread -I$(SRC_DIR) -I$(CORE_DIR)
+DEBUGFLAGS = -g -DDEBUG_BUILD -fsanitize=address -fno-omit-frame-pointer
+LDFLAGS = -pthread
+
+# Platform detection
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+    LDFLAGS += -lrt
+endif
+ifeq ($(UNAME_S),Darwin)
+    # macOS specific flags if needed
+endif
+
+# Source files
+# Core CCK components
+CCK_SOURCES = $(CORE_DIR)/cck_command_system.cpp \
+              $(CORE_DIR)/cck_config_manager.cpp \
+              $(CORE_DIR)/cck_job_scheduler.cpp \
+              $(CORE_DIR)/cck_qm_program.cpp
+
+# Gaussian-specific components
+GAUSSIAN_SOURCES = $(SRC_DIR)/gaussian/gaussian_extractor.cpp \
+                  $(SRC_DIR)/gaussian/gaussian_job_checker.cpp \
+                  $(SRC_DIR)/gaussian/gaussian_command_executor.cpp \
+                  $(SRC_DIR)/gaussian/gaussian_high_level_energy.cpp \
+                  $(SRC_DIR)/gaussian/gaussian_program.cpp
+
+# All source files
+SOURCES = $(SRC_DIR)/main.cpp \
+          $(CCK_SOURCES) \
+          $(GAUSSIAN_SOURCES)
+
+# Core CCK headers
+CCK_HEADERS = $(CORE_DIR)/cck_command_system.h \
+              $(CORE_DIR)/cck_config_manager.h \
+              $(CORE_DIR)/cck_job_scheduler.h \
+              $(CORE_DIR)/cck_qm_program.h \
+              $(CORE_DIR)/cck_version.h
+
+# Gaussian-specific headers
+GAUSSIAN_HEADERS = $(SRC_DIR)/gaussian/gaussian_extractor.h \
+                  $(SRC_DIR)/gaussian/gaussian_job_checker.h \
+                  $(SRC_DIR)/gaussian/gaussian_high_level_energy.h \
+                  $(SRC_DIR)/gaussian/gaussian_program.h \
+                  $(SRC_DIR)/gaussian/gaussian_commands.h
+
+# All header files
+HEADERS = $(CCK_HEADERS) \
+          $(GAUSSIAN_HEADERS)
+
+OBJECTS = $(SOURCES:%.cpp=$(BUILD_DIR)/%.o)
+TARGET = cck
+
+# Ensure build directory structure exists
+$(shell mkdir -p $(BUILD_DIR)/$(SRC_DIR)/core $(BUILD_DIR)/$(SRC_DIR)/gaussian)
+
+# Default target
+all: $(TARGET)
+
+# Build the main executable
+$(TARGET): $(OBJECTS)
+	$(CXX) $(OBJECTS) -o $@ $(LDFLAGS)
+
+# Compile source files to object files
+$(BUILD_DIR)/%.o: %.cpp $(HEADERS)
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Debug build with additional safety checks
+debug: CXXFLAGS += $(DEBUGFLAGS)
+debug: LDFLAGS += -fsanitize=address
+debug: clean $(TARGET)
+
+# Release build with optimizations
+release: CXXFLAGS += -O3 -DNDEBUG -march=native
+release: clean $(TARGET)
+
+# Cluster-safe build (conservative optimizations)
+cluster: CXXFLAGS += -O2 -DCLUSTER_BUILD
+cluster: clean $(TARGET)
+
+# Clean build artifacts
+clean:
+	rm -rf $(BUILD_DIR) $(TARGET)
+
+# Install to system (requires sudo)
+install: $(TARGET)
+	mkdir -p /usr/local/bin
+	cp $(TARGET) /usr/local/bin/
+	chmod +x /usr/local/bin/$(TARGET)
+
+# Install to user's local bin
+install-user: $(TARGET)
+	mkdir -p ~/bin
+	cp $(TARGET) ~/bin/
+	chmod +x ~/bin/$(TARGET)
+
+# Create a test build with maximum warnings
+test-build: CXXFLAGS += -Wpedantic -Wcast-align -Wcast-qual -Wctor-dtor-privacy \
+                        -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op \
+                        -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept \
+                        -Wold-style-cast -Woverloaded-virtual -Wredundant-decls \
+                        -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel \
+                        -Wstrict-overflow=5 -Wswitch-default -Wundef
+test-build: clean $(TARGET)
+
+# Quick test with sample files
+test: $(TARGET)
+	@echo "Testing Gaussian Extractor..."
+	@if [ -f $(TEST_DIR)/data/test-1.log ] && [ -f $(TEST_DIR)/data/test-2.log ]; then \
+		./$(TARGET) --resource-info; \
+		./$(TARGET) -q -f csv; \
+		echo "Test completed. Check output files."; \
+	else \
+		echo "Test files not found. Please ensure test files exist in $(TEST_DIR)/data/"; \
+	fi
+
+# Check for memory leaks (requires valgrind)
+memcheck: debug
+	@if command -v valgrind >/dev/null 2>&1; then \
+		valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes \
+		./$(TARGET) -q; \
+	else \
+		echo "Valgrind not found. Install valgrind for memory checking."; \
+	fi
+
+# Create distribution package
+dist: clean
+	@mkdir -p gaussian-extractor-$(shell date +%Y%m%d)
+	@cp -r $(SRC_DIR) $(TEST_DIR) docs scripts CMakeLists.txt README.MD .clang-format gaussian-extractor-$(shell date +%Y%m%d)/
+	@tar czf gaussian-extractor-$(shell date +%Y%m%d).tar.gz gaussian-extractor-$(shell date +%Y%m%d)/
+	@rm -rf gaussian-extractor-$(shell date +%Y%m%d)/
+	@echo "Distribution package created: gaussian-extractor-$(shell date +%Y%m%d).tar.gz"
+
+# Help target
+help:
+	@echo "ComChemKit (CCK) Makefile - Available targets:"
+	@echo ""
+	@echo "  all          - Build the program (default)"
+	@echo "  debug        - Build with debug symbols and AddressSanitizer"
+	@echo "  release      - Build optimized release version"
+	@echo "  cluster      - Build cluster-safe version"
+	@echo "  test-build   - Build with maximum compiler warnings"
+	@echo "  clean        - Remove build artifacts"
+	@echo "  install      - Install to /usr/local/bin (requires sudo)"
+	@echo "  install-user - Install to ~/bin"
+	@echo "  test         - Run basic functionality test"
+	@echo "  memcheck     - Run with valgrind memory checker"
+	@echo "  dist         - Create distribution package"
+	@echo "  help         - Show this help message"
+	@echo ""
+	@echo "Version Management:"
+	@echo "  scripts/update_version.sh <version>  - Update version across all files"
+	@echo "  ./cck --version                      - Check current version"
+	@echo ""
+	@echo "Usage examples:"
+	@echo "  make                    # Build with default settings"
+	@echo "  make debug              # Build debug version"
+	@echo "  make cluster            # Build for cluster deployment"
+	@echo "  make clean install-user # Clean build and install to user bin"
+
+# Declare phony targets
+.PHONY: all debug release cluster clean install install-user test-build test memcheck dist help
