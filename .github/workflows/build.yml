@@ -85,6 +85,24 @@ jobs:
           echo "Build output verified successfully"
           ls -l build/bin/cck
 
+      - name: Copy test log files
+        run: |
+          echo "Copying test log files to build/bin/"
+          cp tests/data/test-1.log build/bin/
+          cp tests/data/test-2.log build/bin/
+          ls -l build/bin/*.log
+
+      - name: Run energy extraction test
+        run: |
+          cd build/bin
+          ./cck
+          if [ ! -f "*.results" ]; then
+            echo "Error: Energy extraction output file not found"
+            exit 1
+          fi
+          echo "Energy extraction test completed successfully"
+          cat *.results
+
       - name: Run Tests
         run: |
           cd build
