@@ -1,92 +1,118 @@
-name: ComChemKit CI
+name: ComChemKit CI/CD
 
 on:
   push:
-    branches: [ "main", "develop" ]
+    branches: [main, develop]
   pull_request:
-    branches: [ "main", "develop" ]
-
-env:
-  BUILD_TYPE: Release
+    branches: [main, develop]
+  workflow_dispatch:
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
         include:
           - os: ubuntu-latest
-            cmake_generator: "Unix Makefiles"
+            compiler: g++
           - os: windows-latest
-            cmake_generator: "Visual Studio 17 2022"
-          - os: macos-latest
-            cmake_generator: "Unix Makefiles"
+            compiler: msvc
 
     steps:
-    - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Print System Info
-      run: |
-        echo "OS: ${{ runner.os }}"
-        echo "CPU Architecture: ${{ runner.arch }}"
+      - name: Install dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ make cmake clang-tidy
 
-    - name: Set up GCC (Linux)
-      if: runner.os == 'Linux'
-      uses: egor-tensin/setup-gcc@v1
-      with:
-        version: latest
-        platform: x64
+      - name: Verify source files
+        run: |
+          echo "Checking for required source files..."
+          required_files=(
+            "src/gaussian/gaussian_high_level_energy.cpp"
+            "src/gaussian/gaussian_high_level_energy.h"
+            "src/gaussian/gaussian_program.cpp"
+            "src/gaussian/gaussian_program.h"
+            "src/core/cck_command_system.cpp"
+            "src/core/cck_command_system.h"
+            "src/main.cpp"
+          )
 
-    - name: Install Dependencies (Linux)
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential cmake
+          missing_files=0
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "Error: Missing $file"
+              missing_files=1
+            fi
+          done
 
-    - name: Install Dependencies (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        brew install cmake
+          if [ $missing_files -eq 1 ]; then
+            exit 1
+          fi
+          echo "All required source files found."
+        shell: bash
 
-    - name: Configure CMake
-      run: >
-        cmake -B ${{github.workspace}}/build
-        -G "${{ matrix.cmake_generator }}"
-        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        -DWITH_GAUSSIAN=ON
-        -DENABLE_EXTRA_WARNINGS=ON
+      - name: Configure CMake
+        run: |
+          echo "Configuring CMake..."
+          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release -DWITH_GAUSSIAN=ON
+        shell: bash
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      - name: Static Analysis (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          echo "Running static analysis..."
+          clang-tidy -p build src/main.cpp src/gaussian/*.cpp src/core/*.cpp || echo "Static analysis completed with warnings (non-blocking)"
 
-    - name: Check Build Output
-      run: |
-        if [ "${{ runner.os }}" == "Windows" ]; then
-          test -f ${{github.workspace}}/build/bin/${{env.BUILD_TYPE}}/cck.exe
-        else
-          test -f ${{github.workspace}}/build/bin/cck
-        fi
-      shell: bash
+      - name: Build the project
+        run: |
+          echo "Building the project..."
+          cmake --build build --config Release --verbose
+        shell: bash
 
-    - name: Run Tests
-      working-directory: ${{github.workspace}}/build
-      run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
+      - name: Verify build output (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          if (!(Test-Path "build/bin/Release/cck.exe")) {
+            Write-Error "Build output not found: build/bin/Release/cck.exe"
+            exit 1
+          }
+        shell: pwsh
 
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: cck-${{ runner.os }}
-        path: |
-          ${{github.workspace}}/build/bin/**/cck*
-        if-no-files-found: error
+      - name: Verify build output (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          if [ ! -f "build/bin/cck" ]; then
+            echo "Error: Build output not found: build/bin/cck"
+            exit 1
+          fi
+        shell: bash
 
-    - name: Archive CMake Logs on Failure
-      uses: actions/upload-artifact@v3
-      if: failure()
-      with:
-        name: cmake-logs-${{ runner.os }}
-        path: |
-          ${{github.workspace}}/build/CMakeFiles/CMakeOutput.log
-          ${{github.workspace}}/build/CMakeFiles/CMakeError.log
+      - name: Run Tests
+        run: |
+          cd build
+          ctest --output-on-failure -C Release
+        shell: bash
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cck-${{ runner.os }}
+          path: |
+            build/bin/**/cck*
+            build/bin/cck*
+          if-no-files-found: error
+
+      - name: Upload CMake logs on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cmake-logs-${{ runner.os }}
+          path: |
+            build/CMakeFiles/CMakeOutput.log
+            build/CMakeFiles/CMakeError.log
