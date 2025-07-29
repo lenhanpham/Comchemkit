@@ -98,7 +98,7 @@ jobs:
           echo "Running basic execution test..."
           cd build/bin
           ./cck
-          if [ ! -f "Comchemkit.results" ]; then
+          if [ ! -f "$(basename $(pwd)).results" ]; then
             echo "Error: Results file was not created!"
             exit 1
           fi
