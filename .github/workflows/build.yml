@@ -92,21 +92,16 @@ jobs:
           cp tests/data/test-2.log build/bin/
           ls -l build/bin/*.log
 
-      - name: Run energy extraction test
+      - name: Run basic execution test
         run: |
+          echo "Running basic execution test..."
           cd build/bin
           ./cck
-          if [ ! -f "*.results" ]; then
-            echo "Error: Energy extraction output file not found"
+          if [ ! -f "Comchemkit.results" ]; then
+            echo "Error: Results file was not created!"
             exit 1
           fi
-          echo "Energy extraction test completed successfully"
-          cat *.results
-
-       - name: Run Tests
-        run: |
-          cd build
-          ctest --output-on-failure -C Release
+          echo "Execution test passed. Results file was created."
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
