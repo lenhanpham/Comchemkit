@@ -8,3 +8,4 @@ test_compile.sh
 .rules
 devdocs/
 note.txt
+changes_summary.md

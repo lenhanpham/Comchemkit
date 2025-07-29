@@ -67,13 +67,7 @@
  */
 extern std::atomic<bool> g_shutdown_requested;
 
-/**
- * @defgroup PhysicsConstants Physical Constants
- * @brief Fundamental physical constants used in thermodynamic calculations
- * @{
- */
 
-/** @} */ // end of PhysicsConstants group
 
 /**
  * @defgroup SafetyLimits Resource Safety Limits

@@ -103,7 +103,7 @@ jobs:
           echo "Energy extraction test completed successfully"
           cat *.results
 
-      - name: Run Tests
+       - name: Run Tests
         run: |
           cd build
           ctest --output-on-failure -C Release

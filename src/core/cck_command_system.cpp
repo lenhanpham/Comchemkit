@@ -55,7 +55,7 @@ CommandContext CommandParser::parse(int argc, char* argv[]) {
     context.thread_count = -1;
     context.sort_column = 2;
     context.format = "text";
-    context.extension = "log";
+    context.extension = ".log";
     context.quiet = false;
     context.max_file_size = 100;
     context.memory_limit = 0;

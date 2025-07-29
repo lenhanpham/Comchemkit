@@ -81,7 +81,7 @@ int execute_extract_command(const cck::core::CommandContext& context) {
         // Call the existing processAndOutputResults function
         processAndOutputResults(
             context.temperature,
-            context.concentration,
+            static_cast<int>(context.concentration * 1000),
             context.sort_column,
             context.extension,
             context.quiet,

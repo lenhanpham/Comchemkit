@@ -43,7 +43,7 @@
  * Incremented when incompatible API changes are made.
  * Breaking changes that require user intervention.
  */
-#define CCK_VERSION_MAJOR 1
+#define CCK_VERSION_MAJOR 0
 
 /**
  * @brief Minor version number
@@ -51,7 +51,7 @@
  * Incremented when backward-compatible functionality is added.
  * New features that don't break existing usage.
  */
-#define CCK_VERSION_MINOR 0
+#define CCK_VERSION_MINOR 1
 
 /**
  * @brief Patch version number

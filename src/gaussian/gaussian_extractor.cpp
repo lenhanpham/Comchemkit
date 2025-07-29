@@ -81,8 +81,6 @@ using namespace cck::constants::physical;
 
 // Additional constants for Gaussian extractor
 namespace {
-    constexpr double R = 8.31446261815324;  // Gas constant in J/(mol·K)
-    constexpr double Po = 101325.0;          // Standard pressure in Pa
     const std::string GAUSSIAN_EXTRACTOR_REPOSITORY = "https://github.com/lenhanpham/ComChemKit";
 }
 
@@ -803,9 +801,9 @@ Result extract(const std::string& file_name_param, const ProcessingContext& cont
     nucleare = nucleare ? nucleare : 0;
     zpe = zpe ? zpe : 0;
 
-    double GphaseCorr = R * temp * std::log(context.concentration * R * temp / Po) * 0.0003808798033989866 / 1000;
+    double GphaseCorr = cck::constants::physical::GAS_CONSTANT * temp * std::log(context.concentration * cck::constants::physical::GAS_CONSTANT * temp / cck::constants::physical::Po) * 0.0003808798033989866 / 1000;
     double GibbsFreeHartree = (phaseCorr == "YES" && etg != 0.0) ? etg + GphaseCorr : etg;
-    double etgkj = GibbsFreeHartree * 2625.5002;
+    double etgkj = GibbsFreeHartree * cck::constants::physical::HARTREE_TO_KJ;
 
     // Determine status from content buffer
     for (const auto& content_line : content) {
@@ -1046,7 +1044,7 @@ void processAndOutputResults(double temp, int C, int column, const std::string& 
         }
 
         params << "The concentration for phase correction: " << C / 1000 << " M or " << C << " mol/m3\n";
-        double representative_GphaseCorr = R * temp * std::log(C * R * temp / Po) * 0.0003808798033989866 / 1000;
+        double representative_GphaseCorr = cck::constants::physical::GAS_CONSTANT * temp * std::log(C * cck::constants::physical::GAS_CONSTANT * temp / cck::constants::physical::Po) * 0.0003808798033989866 / 1000;
         params << "Representative Gibbs free correction for phase changing at " << std::fixed << std::setprecision(3)
                << temp << " K: " << std::fixed << std::setprecision(6) << representative_GphaseCorr << " au\n";
         params << "Using " << num_threads << " threads for processing.\n";

@@ -29,8 +29,10 @@ namespace physical {
     constexpr double SPEED_OF_LIGHT = 137.036;       // Speed of light in atomic units
     constexpr double HARTREE_TO_EV = 27.211386245;   // Conversion: Hartree to eV
     constexpr double HARTREE_TO_KCAL = 627.509474;   // Conversion: Hartree to kcal/mol
-    constexpr double HARTREE_TO_KJ = 2625.499638;    // Conversion: Hartree to kJ/mol
+    constexpr double HARTREE_TO_KJ = 2625.5002;    // Conversion: Hartree to kJ/mol
     constexpr double BOHR_TO_ANGSTROM = 0.529177249; // Conversion: Bohr to Ångström
+    constexpr double Po = 101325;                     // Standard pressure in Pa
+    constexpr double PHASE_CORR_FACTOR = 0.0003808798033989866; // Phase correction factor
 }
 
 // Default values for calculations

@@ -9,14 +9,7 @@
 #include <filesystem>
 #include <vector>
 
-// Physical constants for calculations
-namespace {
-    constexpr double HARTREE_TO_KJ_MOL = 2625.499638;
-    constexpr double HARTREE_TO_EV = 27.211386245;
-    constexpr double R_CONSTANT = 8.31446261815324;
-    constexpr double PO_CONSTANT = 101325.0;
-    constexpr double PHASE_CORR_FACTOR = 0.0003808798033989866;
-}
+
 
 // Constructor
 HighLevelEnergyCalculator::HighLevelEnergyCalculator(double temp, double concentration_m)
@@ -82,8 +75,8 @@ HighLevelEnergyData HighLevelEnergyCalculator::calculate_high_level_energy(const
         }
 
         // Convert to other units
-        data.gibbs_kj_mol = data.gibbs_hartree_corrected * HARTREE_TO_KJ_MOL;
-        data.gibbs_ev = data.gibbs_hartree_corrected * HARTREE_TO_EV;
+        data.gibbs_kj_mol = data.gibbs_hartree_corrected * cck::constants::physical::HARTREE_TO_KJ;
+        data.gibbs_ev = data.gibbs_hartree_corrected * cck::constants::physical::HARTREE_TO_EV;
 
         // Extract additional data
         data.lowest_frequency = extract_lowest_frequency(parent_file);
@@ -226,9 +219,9 @@ bool HighLevelEnergyCalculator::extract_low_level_thermal_data(const std::string
 
 double HighLevelEnergyCalculator::calculate_phase_correction(double temp, double concentration_mol_m3) {
     // Delta_G_corr = RT*ln(C*RT/Po) * conversion_factor
-    double rt = R_CONSTANT * temp;
-    double ratio = concentration_mol_m3 * rt / PO_CONSTANT;
-    return rt * std::log(ratio) * PHASE_CORR_FACTOR / 1000.0;
+    double rt = cck::constants::physical::GAS_CONSTANT * temp;
+    double ratio = concentration_mol_m3 * rt / cck::constants::physical::Po;
+    return rt * std::log(ratio) * cck::constants::physical::PHASE_CORR_FACTOR / 1000.0;
 }
 
 double HighLevelEnergyCalculator::calculate_thermal_only(double tc_with_zpe, double zpe) {

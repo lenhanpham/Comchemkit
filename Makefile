@@ -1,5 +1,5 @@
 # Makefile for ComChemKit (CCK)
-# Enhanced Safety Edition v0.4.0
+
 
 # Directory structure
 SRC_DIR = src
@@ -115,16 +115,9 @@ test-build: CXXFLAGS += -Wpedantic -Wcast-align -Wcast-qual -Wctor-dtor-privacy 
                         -Wstrict-overflow=5 -Wswitch-default -Wundef
 test-build: clean $(TARGET)
 
-# Quick test with sample files
 test: $(TARGET)
-	@echo "Testing Gaussian Extractor..."
-	@if [ -f $(TEST_DIR)/data/test-1.log ] && [ -f $(TEST_DIR)/data/test-2.log ]; then \
-		./$(TARGET) --resource-info; \
-		./$(TARGET) -q -f csv; \
-		echo "Test completed. Check output files."; \
-	else \
-		echo "Test files not found. Please ensure test files exist in $(TEST_DIR)/data/"; \
-	fi
+	@echo "Validating results..."
+	./validate_results.sh ./$(TARGET)
 
 # Check for memory leaks (requires valgrind)
 memcheck: debug

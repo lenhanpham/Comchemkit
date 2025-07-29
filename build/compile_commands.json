@@ -1,0 +1,62 @@
+[
+{
+  "directory": "/mnt/e/Projects/Shell-script-template/Comchemkit/build",
+  "command": "/usr/bin/g++ -DCCK_WITH_GAUSSIAN -I/mnt/e/Projects/Shell-script-template/Comchemkit/src -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/core -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian -O3 -DNDEBUG -std=c++20 -Wall -Wextra -O3 -Wpedantic -Wcast-align -Wcast-qual -Wconversion -Wdouble-promotion -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wswitch-default -Wundef -o CMakeFiles/cck.dir/src/main.cpp.o -c /mnt/e/Projects/Shell-script-template/Comchemkit/src/main.cpp",
+  "file": "/mnt/e/Projects/Shell-script-template/Comchemkit/src/main.cpp",
+  "output": "CMakeFiles/cck.dir/src/main.cpp.o"
+},
+{
+  "directory": "/mnt/e/Projects/Shell-script-template/Comchemkit/build",
+  "command": "/usr/bin/g++ -DCCK_WITH_GAUSSIAN -I/mnt/e/Projects/Shell-script-template/Comchemkit/src -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/core -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian -O3 -DNDEBUG -std=c++20 -Wall -Wextra -O3 -Wpedantic -Wcast-align -Wcast-qual -Wconversion -Wdouble-promotion -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wswitch-default -Wundef -o CMakeFiles/cck.dir/src/core/cck_command_system.cpp.o -c /mnt/e/Projects/Shell-script-template/Comchemkit/src/core/cck_command_system.cpp",
+  "file": "/mnt/e/Projects/Shell-script-template/Comchemkit/src/core/cck_command_system.cpp",
+  "output": "CMakeFiles/cck.dir/src/core/cck_command_system.cpp.o"
+},
+{
+  "directory": "/mnt/e/Projects/Shell-script-template/Comchemkit/build",
+  "command": "/usr/bin/g++ -DCCK_WITH_GAUSSIAN -I/mnt/e/Projects/Shell-script-template/Comchemkit/src -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/core -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian -O3 -DNDEBUG -std=c++20 -Wall -Wextra -O3 -Wpedantic -Wcast-align -Wcast-qual -Wconversion -Wdouble-promotion -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wswitch-default -Wundef -o CMakeFiles/cck.dir/src/core/cck_config_manager.cpp.o -c /mnt/e/Projects/Shell-script-template/Comchemkit/src/core/cck_config_manager.cpp",
+  "file": "/mnt/e/Projects/Shell-script-template/Comchemkit/src/core/cck_config_manager.cpp",
+  "output": "CMakeFiles/cck.dir/src/core/cck_config_manager.cpp.o"
+},
+{
+  "directory": "/mnt/e/Projects/Shell-script-template/Comchemkit/build",
+  "command": "/usr/bin/g++ -DCCK_WITH_GAUSSIAN -I/mnt/e/Projects/Shell-script-template/Comchemkit/src -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/core -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian -O3 -DNDEBUG -std=c++20 -Wall -Wextra -O3 -Wpedantic -Wcast-align -Wcast-qual -Wconversion -Wdouble-promotion -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wswitch-default -Wundef -o CMakeFiles/cck.dir/src/core/cck_job_scheduler.cpp.o -c /mnt/e/Projects/Shell-script-template/Comchemkit/src/core/cck_job_scheduler.cpp",
+  "file": "/mnt/e/Projects/Shell-script-template/Comchemkit/src/core/cck_job_scheduler.cpp",
+  "output": "CMakeFiles/cck.dir/src/core/cck_job_scheduler.cpp.o"
+},
+{
+  "directory": "/mnt/e/Projects/Shell-script-template/Comchemkit/build",
+  "command": "/usr/bin/g++ -DCCK_WITH_GAUSSIAN -I/mnt/e/Projects/Shell-script-template/Comchemkit/src -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/core -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian -O3 -DNDEBUG -std=c++20 -Wall -Wextra -O3 -Wpedantic -Wcast-align -Wcast-qual -Wconversion -Wdouble-promotion -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wswitch-default -Wundef -o CMakeFiles/cck.dir/src/core/cck_qm_program.cpp.o -c /mnt/e/Projects/Shell-script-template/Comchemkit/src/core/cck_qm_program.cpp",
+  "file": "/mnt/e/Projects/Shell-script-template/Comchemkit/src/core/cck_qm_program.cpp",
+  "output": "CMakeFiles/cck.dir/src/core/cck_qm_program.cpp.o"
+},
+{
+  "directory": "/mnt/e/Projects/Shell-script-template/Comchemkit/build",
+  "command": "/usr/bin/g++ -DCCK_WITH_GAUSSIAN -I/mnt/e/Projects/Shell-script-template/Comchemkit/src -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/core -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian -O3 -DNDEBUG -std=c++20 -Wall -Wextra -O3 -Wpedantic -Wcast-align -Wcast-qual -Wconversion -Wdouble-promotion -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wswitch-default -Wundef -o CMakeFiles/cck.dir/src/gaussian/gaussian_program.cpp.o -c /mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian/gaussian_program.cpp",
+  "file": "/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian/gaussian_program.cpp",
+  "output": "CMakeFiles/cck.dir/src/gaussian/gaussian_program.cpp.o"
+},
+{
+  "directory": "/mnt/e/Projects/Shell-script-template/Comchemkit/build",
+  "command": "/usr/bin/g++ -DCCK_WITH_GAUSSIAN -I/mnt/e/Projects/Shell-script-template/Comchemkit/src -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/core -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian -O3 -DNDEBUG -std=c++20 -Wall -Wextra -O3 -Wpedantic -Wcast-align -Wcast-qual -Wconversion -Wdouble-promotion -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wswitch-default -Wundef -o CMakeFiles/cck.dir/src/gaussian/gaussian_extractor.cpp.o -c /mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian/gaussian_extractor.cpp",
+  "file": "/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian/gaussian_extractor.cpp",
+  "output": "CMakeFiles/cck.dir/src/gaussian/gaussian_extractor.cpp.o"
+},
+{
+  "directory": "/mnt/e/Projects/Shell-script-template/Comchemkit/build",
+  "command": "/usr/bin/g++ -DCCK_WITH_GAUSSIAN -I/mnt/e/Projects/Shell-script-template/Comchemkit/src -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/core -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian -O3 -DNDEBUG -std=c++20 -Wall -Wextra -O3 -Wpedantic -Wcast-align -Wcast-qual -Wconversion -Wdouble-promotion -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wswitch-default -Wundef -o CMakeFiles/cck.dir/src/gaussian/gaussian_job_checker.cpp.o -c /mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian/gaussian_job_checker.cpp",
+  "file": "/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian/gaussian_job_checker.cpp",
+  "output": "CMakeFiles/cck.dir/src/gaussian/gaussian_job_checker.cpp.o"
+},
+{
+  "directory": "/mnt/e/Projects/Shell-script-template/Comchemkit/build",
+  "command": "/usr/bin/g++ -DCCK_WITH_GAUSSIAN -I/mnt/e/Projects/Shell-script-template/Comchemkit/src -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/core -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian -O3 -DNDEBUG -std=c++20 -Wall -Wextra -O3 -Wpedantic -Wcast-align -Wcast-qual -Wconversion -Wdouble-promotion -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wswitch-default -Wundef -o CMakeFiles/cck.dir/src/gaussian/gaussian_command_executor.cpp.o -c /mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian/gaussian_command_executor.cpp",
+  "file": "/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian/gaussian_command_executor.cpp",
+  "output": "CMakeFiles/cck.dir/src/gaussian/gaussian_command_executor.cpp.o"
+},
+{
+  "directory": "/mnt/e/Projects/Shell-script-template/Comchemkit/build",
+  "command": "/usr/bin/g++ -DCCK_WITH_GAUSSIAN -I/mnt/e/Projects/Shell-script-template/Comchemkit/src -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/core -I/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian -O3 -DNDEBUG -std=c++20 -Wall -Wextra -O3 -Wpedantic -Wcast-align -Wcast-qual -Wconversion -Wdouble-promotion -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wswitch-default -Wundef -o CMakeFiles/cck.dir/src/gaussian/gaussian_high_level_energy.cpp.o -c /mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian/gaussian_high_level_energy.cpp",
+  "file": "/mnt/e/Projects/Shell-script-template/Comchemkit/src/gaussian/gaussian_high_level_energy.cpp",
+  "output": "CMakeFiles/cck.dir/src/gaussian/gaussian_high_level_energy.cpp.o"
+}
+]

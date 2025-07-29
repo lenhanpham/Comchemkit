@@ -1,0 +1,8 @@
+/mnt/e/Projects/Shell-script-template/Comchemkit/build/CMakeFiles/cck.dir
+/mnt/e/Projects/Shell-script-template/Comchemkit/build/CMakeFiles/test.dir
+/mnt/e/Projects/Shell-script-template/Comchemkit/build/CMakeFiles/edit_cache.dir
+/mnt/e/Projects/Shell-script-template/Comchemkit/build/CMakeFiles/rebuild_cache.dir
+/mnt/e/Projects/Shell-script-template/Comchemkit/build/CMakeFiles/list_install_components.dir
+/mnt/e/Projects/Shell-script-template/Comchemkit/build/CMakeFiles/install.dir
+/mnt/e/Projects/Shell-script-template/Comchemkit/build/CMakeFiles/install/local.dir
+/mnt/e/Projects/Shell-script-template/Comchemkit/build/CMakeFiles/install/strip.dir
