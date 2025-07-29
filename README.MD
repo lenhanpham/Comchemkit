@@ -1,6 +1,6 @@
 # **Comchemkit v0.1**.0
 
-**Comchemkit** is a high-performance, cluster-safe program designed to extract energies from computational chemistry outputs (Gaussian, ORCA, NWCHEM, QCHEM, VASP, QE) and some other electronic structure analysis features. For energy extraction, Comchekit processes multiple log files in parallel with comprehensive safety features to prevent system overload and ensure stable operation in shared computing environments. The current version only implements extraction and Gibbs free energy calculation functions for Gaussian. Other features will be implemented in future versions.
+**ComChemKit** is a high-performance, cluster-safe program designed to extract energies from computational chemistry outputs (ORCA, NWCHEM, Molpro, Molcas, VASP, CP2K, Qchem, QE, and so on) and some other electronic structure analysis features. For energy extraction, Comchekit processes multiple log files in parallel with comprehensive safety features to prevent system overload and ensure stable operation in shared computing environments. The current version only implements extraction and Gibbs free energy calculation functions for Gaussian. Other features will be implemented in future versions.
 
 All features are in the experimental stage. Errors may occur.
 
