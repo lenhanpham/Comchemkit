@@ -88,7 +88,7 @@ namespace {
 
 // Implementation of GaussianExtractor class
 std::string GaussianExtractor::get_header_info() {
-    return "ComChemKit Gaussian Extractor v1.0";
+    return "ComChemKit Gaussian Extractor v" + std::to_string(CCK_VERSION_MAJOR) + "." + std::to_string(CCK_VERSION_MINOR) + "." + std::to_string(CCK_VERSION_PATCH);
 }
 
 // External global variable for shutdown handling

@@ -67,7 +67,13 @@
  * Human-readable version string combining all version components.
  * Format: "vMAJOR.MINOR.PATCH"
  */
-#define CCK_VERSION_STRING "v0.1.0"
+#define CCK_VERSION_STRING "v" CCK_STRINGIFY(CCK_VERSION_MAJOR) "." CCK_STRINGIFY(CCK_VERSION_MINOR) "." CCK_STRINGIFY(CCK_VERSION_PATCH)
+
+/**
+ * @brief Helper macro for stringifying version numbers
+ */
+#define CCK_STRINGIFY_HELPER(x) #x
+#define CCK_STRINGIFY(x) CCK_STRINGIFY_HELPER(x)
 
 /** @} */ // end of VersionConstants group
 
