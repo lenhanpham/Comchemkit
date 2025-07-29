@@ -1,7 +1,7 @@
 # CMake configuration for ComChemKit (CCK)
 cmake_minimum_required(VERSION 3.16)
 project(ComChemKit
-    VERSION 0.4.0
+    VERSION 0.1.0
     DESCRIPTION "Computational Chemistry Toolkit for Quantum Chemistry Programs"
     LANGUAGES CXX
 )
