@@ -8,26 +8,50 @@
 #include <cmath>
 #include <filesystem>
 #include <vector>
-
-
+#include <thread>
+#include <future>
 
 // Constructor
-HighLevelEnergyCalculator::HighLevelEnergyCalculator(double temp, double concentration_m)
-    : temperature_(temp), 
-      concentration_m_(concentration_m),
-      concentration_mol_m3_(concentration_m_ * 1000.0) {
-    if (!HighLevelEnergyUtils::validate_temperature(temp)) {
-        temperature_ = cck::constants::defaults::TEMPERATURE;
-    }
-    if (!HighLevelEnergyUtils::validate_concentration(concentration_m)) {
-        concentration_m_ = cck::constants::defaults::CONCENTRATION;
-        concentration_mol_m3_ = concentration_m_ * 1000.0;
+HighLevelEnergyCalculator::HighLevelEnergyCalculator(std::shared_ptr<ProcessingContext> context)
+    : context_(context) {
+    if (!context_) {
+        throw std::invalid_argument("ProcessingContext cannot be null");
     }
 }
 
 // Main calculation function
 HighLevelEnergyData HighLevelEnergyCalculator::calculate_high_level_energy(const std::string& high_level_file) {
     HighLevelEnergyData data(high_level_file);
+
+    if (g_shutdown_requested.load()) {
+        throw std::runtime_error("Shutdown requested");
+    }
+
+    auto file_guard = context_->file_manager->acquire();
+    if (!file_guard.is_acquired()) {
+        throw std::runtime_error("Could not acquire file handle for: " + high_level_file);
+    }
+
+    size_t estimated_memory = 0;
+    try {
+        estimated_memory = std::filesystem::file_size(high_level_file) * 2; // Estimate memory usage
+    } catch (const std::filesystem::filesystem_error&) {
+        estimated_memory = 2 * 1024 * 1024; // 2MB default
+    }
+
+    if (!context_->memory_monitor->can_allocate(estimated_memory)) {
+        throw std::runtime_error("Insufficient memory to process file: " + high_level_file);
+    }
+    context_->memory_monitor->add_usage(estimated_memory);
+    
+    // RAII for memory deallocation
+    struct MemoryGuard {
+        std::shared_ptr<MemoryMonitor> monitor;
+        size_t bytes;
+        MemoryGuard(std::shared_ptr<MemoryMonitor> m, size_t b) : monitor(m), bytes(b) {}
+        ~MemoryGuard() { if (monitor) monitor->remove_usage(bytes); }
+    };
+    MemoryGuard memory_guard(context_->memory_monitor, estimated_memory);
 
     try {
         // Extract high-level electronic energies from current directory file
@@ -66,7 +90,7 @@ HighLevelEnergyData HighLevelEnergyCalculator::calculate_high_level_energy(const
         data.has_scrf = (file_content.find("scrf") != std::string::npos);
 
         if (data.has_scrf) {
-            data.phase_correction = calculate_phase_correction(data.temperature, concentration_mol_m3_);
+            data.phase_correction = calculate_phase_correction(data.temperature, context_->concentration);
             data.gibbs_hartree_corrected = data.gibbs_hartree + data.phase_correction;
             data.phase_corr_applied = true;
         } else {
@@ -83,7 +107,7 @@ HighLevelEnergyData HighLevelEnergyCalculator::calculate_high_level_energy(const
         data.status = determine_job_status(high_level_file);
 
     } catch (const std::exception& e) {
-        std::cerr << "Error processing " << high_level_file << ": " << e.what() << std::endl;
+        context_->error_collector->add_error("Error processing " + high_level_file + ": " + e.what());
         data.status = "ERROR";
     }
 
@@ -93,14 +117,28 @@ HighLevelEnergyData HighLevelEnergyCalculator::calculate_high_level_energy(const
 // Process entire directory
 std::vector<HighLevelEnergyData> HighLevelEnergyCalculator::process_directory(const std::string& extension) {
     std::vector<HighLevelEnergyData> results;
-
+    
     try {
         auto log_files = HighLevelEnergyUtils::find_log_files(".");
 
+        if (log_files.empty()) {
+            return results;
+        }
+
+        std::vector<std::future<HighLevelEnergyData>> futures;
         for (const auto& file : log_files) {
             if (file.find(extension) != std::string::npos) {
-                auto data = calculate_high_level_energy(file);
-                results.push_back(data);
+                futures.emplace_back(std::async(std::launch::async, [this, file]() {
+                    return this->calculate_high_level_energy(file);
+                }));
+            }
+        }
+
+        for (auto& future : futures) {
+            try {
+                results.push_back(future.get());
+            } catch (const std::exception& e) {
+                context_->error_collector->add_error(e.what());
             }
         }
 
@@ -111,7 +149,7 @@ std::vector<HighLevelEnergyData> HighLevelEnergyCalculator::process_directory(co
                  });
 
     } catch (const std::exception& e) {
-        std::cerr << "Error processing directory: " << e.what() << std::endl;
+        context_->error_collector->add_error("Error processing directory: " + std::string(e.what()));
     }
 
     return results;
@@ -205,9 +243,9 @@ bool HighLevelEnergyCalculator::extract_low_level_thermal_data(const std::string
         double temp = extract_value_from_file(parent_file, "Kelvin\\.\\s+Pressure", 2, -1);
         if (temp > 0.0) {
             data.temperature = temp;
-            temperature_ = temp; // Update calculator temperature
+            context_->base_temp = temp; // Update calculator temperature
         } else {
-            data.temperature = temperature_;
+            data.temperature = context_->base_temp;
         }
 
         return true;
@@ -381,14 +419,14 @@ void HighLevelEnergyCalculator::print_summary_info(const std::string& last_paren
     
     try {
         double last_temp = extract_value_from_file(last_parent_file, "Kelvin\\.\\s+Pressure", 2, -1);
-        if (last_temp == 0.0) last_temp = temperature_;
+        if (last_temp == 0.0) last_temp = context_->base_temp;
 
-        double last_phase_corr = calculate_phase_correction(last_temp, concentration_mol_m3_);
+        double last_phase_corr = calculate_phase_correction(last_temp, context_->concentration);
 
         out << "Temperature in " << last_parent_file << ": " << std::fixed << std::setprecision(3) 
             << last_temp << " K. Make sure that temperature has been used in your input." << std::endl;
         out << "The concentration for phase correction: " << std::fixed << std::setprecision(0) 
-            << concentration_m_ << " M or " << concentration_mol_m3_ << " mol/m3" << std::endl;
+            << static_cast<double>(context_->concentration) / 1000.0 << " M or " << context_->concentration << " mol/m3" << std::endl;
         out << "Last Gibbs free correction for phase changing from 1 atm to 1 M: " 
             << std::fixed << std::setprecision(6) << last_phase_corr << " au" << std::endl;
     } catch (const std::exception& e) {

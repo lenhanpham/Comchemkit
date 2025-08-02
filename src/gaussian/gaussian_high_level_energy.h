@@ -170,16 +170,14 @@ struct HighLevelEnergyData {
 class HighLevelEnergyCalculator {
 public:
     /**
-     * @brief Constructor with temperature and concentration specification
-     * @param temp Temperature for thermodynamic calculations (K, default: 298.15)
-     * @param concentration_m Concentration in mol/L for phase corrections (default: 1.0)
+     * @brief Constructor with processing context
+     * @param context Shared processing context for resource management
      * 
-     * Initializes the calculator with specified thermodynamic conditions.
-     * Temperature affects thermal corrections and phase corrections, while
-     * concentration affects phase corrections for solution-phase calculations.
+     * Initializes the calculator with a shared processing context that
+     * provides access to resource managers (memory, file handles) and
+     * job scheduler information.
      */
-    HighLevelEnergyCalculator(double temperature = cck::constants::defaults::TEMPERATURE,
-                             double concentration = cck::constants::defaults::CONCENTRATION);
+    explicit HighLevelEnergyCalculator(std::shared_ptr<ProcessingContext> context);
     
     /**
      * @defgroup MainCalculation Main Calculation Functions
@@ -188,33 +186,22 @@ public:
      */
     
     /**
-     * @brief Calculate high-level energy for a single file
-     * @param high_level_file Path to high-level calculation log file
-     * @return HighLevelEnergyData with complete energy analysis
-     * 
-     * Processes a single high-level calculation file and combines it with
-     * corresponding low-level thermal data to produce complete thermodynamic
-     * properties. This is the core calculation function.
-     * 
-     * @section Process
-     * 1. Extract high-level electronic energies from specified file
-     * 2. Locate and extract thermal data from corresponding parent file
-     * 3. Combine energies using appropriate theoretical framework
-     * 4. Apply temperature and concentration corrections
-     * 5. Calculate all thermodynamic quantities
-     */
-    HighLevelEnergyData calculate_high_level_energy(const std::string& high_level_file);
-    
-    /**
-     * @brief Process entire directory of high-level calculations
+     * @brief Process entire directory of high-level calculations in parallel
      * @param extension File extension to process (default: ".log")
      * @return Vector of HighLevelEnergyData for all processed files
      * 
-     * Processes all files in the current directory with the specified extension,
-     * calculating high-level energies for each. Provides batch processing
-     * capability for large sets of calculations.
+     * Processes all files in the current directory with the specified extension
+     * in parallel, using a thread pool and resource management from the
+     * processing context.
      */
     std::vector<HighLevelEnergyData> process_directory(const std::string& extension = ".log");
+
+    /**
+     * @brief Calculate high-level energy for a single file
+     * @param high_level_file Path to high-level calculation log file
+     * @return HighLevelEnergyData with complete energy analysis
+     */
+    HighLevelEnergyData calculate_high_level_energy(const std::string& high_level_file);
     
     /** @} */ // end of MainCalculation group
     
@@ -265,7 +252,7 @@ public:
      * Updates the temperature used for thermal corrections and phase
      * corrections. Affects all subsequent calculations.
      */
-    void set_temperature(double temp) { temperature_ = temp; }
+    void set_temperature(double temp) { context_->base_temp = temp; }
     
     /**
      * @brief Set concentration for phase corrections
@@ -275,28 +262,25 @@ public:
      * calculations. Automatically converts to mol/m³ for internal calculations.
      */
     void set_concentration(double conc_m) { 
-        concentration_m_ = conc_m; 
-        concentration_mol_m3_ = conc_m * 1000.0;
+        context_->concentration = static_cast<int>(conc_m * 1000.0);
     }
     
     /**
      * @brief Get current temperature setting
      * @return Temperature in Kelvin
      */
-    double get_temperature() const { return temperature_; }
+    double get_temperature() const { return context_->base_temp; }
     
     /**
      * @brief Get current concentration setting
      * @return Concentration in mol/L
      */
-    double get_concentration_m() const { return concentration_m_; }
+    double get_concentration_m() const { return static_cast<double>(context_->concentration) / 1000.0; }
     
     /** @} */ // end of Configuration group
     
 private:
-    double temperature_;           ///< Temperature for calculations (K)
-    double concentration_m_;       ///< Concentration in mol/L
-    double concentration_mol_m3_;  ///< Concentration in mol/m³ (for calculations)
+    std::shared_ptr<ProcessingContext> context_;
     
     /**
      * @defgroup EnergyExtraction Energy Extraction Helper Functions

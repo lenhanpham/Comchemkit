@@ -354,10 +354,18 @@ int execute_high_level_kj_command(const cck::core::CommandContext& context) {
             return 1;
         }
 
-        // Create high-level energy calculator with specified temperature and concentration
-        // Convert concentration from mol/m³ to M (mol/L)
-        double concentration_m = static_cast<double>(context.concentration) / 1000.0;
-        HighLevelEnergyCalculator calculator(context.temp, concentration_m);
+        // Create processing context for resource management
+        auto processing_context = std::make_shared<ProcessingContext>(
+            context.temp,
+            static_cast<int>(context.concentration * 1000),
+            false, // use_input_temp not applicable here
+            context.thread_count,
+            context.extension,
+            context.job_resources
+        );
+
+        // Create high-level energy calculator with the processing context
+        HighLevelEnergyCalculator calculator(processing_context);
 
         // Process all files in current directory
         auto results = calculator.process_directory(context.extension);
@@ -410,10 +418,18 @@ int execute_high_level_au_command(const cck::core::CommandContext& context) {
             return 1;
         }
 
-        // Create high-level energy calculator with specified temperature and concentration
-        // Convert concentration from mol/m³ to M (mol/L)
-        double concentration_m = static_cast<double>(context.concentration) / 1000.0;
-        HighLevelEnergyCalculator calculator(context.temp, concentration_m);
+        // Create processing context for resource management
+        auto processing_context = std::make_shared<ProcessingContext>(
+            context.temp,
+            static_cast<int>(context.concentration * 1000),
+            false, // use_input_temp not applicable here
+            context.thread_count,
+            context.extension,
+            context.job_resources
+        );
+
+        // Create high-level energy calculator with the processing context
+        HighLevelEnergyCalculator calculator(processing_context);
 
         // Process all files in current directory
         auto results = calculator.process_directory(context.extension);
